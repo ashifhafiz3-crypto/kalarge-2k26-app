@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+/* KALARGE 2K26 — Animated Arts Fest Background */
+
+.exhibition-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse at 50% 45%,
+      rgba(20, 35, 30, 0.55),
+      transparent 65%
+    ),
+    #030407;
+}
+
+.art-shape {
+  position: absolute;
+  border-radius: 42% 58% 63% 37% / 45% 40% 60% 55%;
+  filter: blur(2px);
+  opacity: 0.2;
+  will-change: transform;
+}
+
+.art-shape-blue {
+  width: 38vw;
+  height: 38vw;
+  top: -15%;
+  left: -12%;
+  background: linear-gradient(135deg, #2563eb, #38bdf8);
+  animation: artFloatOne 18s ease-in-out infinite alternate;
+}
+
+.art-shape-green {
+  width: 42vw;
+  height: 42vw;
+  right: -15%;
+  bottom: -25%;
+  background: linear-gradient(135deg, #047857, #4ade80);
+  animation: artFloatTwo 22s ease-in-out infinite alternate;
+}
+
+.art-shape-red {
+  width: 25vw;
+  height: 25vw;
+  right: 15%;
+  top: 10%;
+  background: linear-gradient(135deg, #991b1b, #f43f5e);
+  animation: artFloatThree 20s ease-in-out infinite alternate;
+}
+
+.art-shape-gold {
+  width: 22vw;
+  height: 22vw;
+  left: 20%;
+  bottom: -10%;
+  background: linear-gradient(135deg, #b45309, #facc15);
+  animation: artFloatOne 24s ease-in-out infinite alternate-reverse;
+}
+
+.art-glow {
+  position: absolute;
+  width: 45vw;
+  height: 45vw;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.07);
+  filter: blur(100px);
+}
+
+.art-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+}
+
+@keyframes artFloatOne {
+  from {
+    transform: translate3d(-3%, -2%, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(8%, 10%, 0) rotate(35deg);
+  }
+}
+
+@keyframes artFloatTwo {
+  from {
+    transform: translate3d(3%, 2%, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(-10%, -8%, 0) rotate(-30deg);
+  }
+}
+
+@keyframes artFloatThree {
+  from {
+    transform: translate3d(0, 0, 0) rotate(-10deg);
+  }
+  to {
+    transform: translate3d(-8%, 12%, 0) rotate(25deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .art-shape {
+    animation: none;
+  }
+}

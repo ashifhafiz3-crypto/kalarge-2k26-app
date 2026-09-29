@@ -1,0 +1,498 @@
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+
+const adapter = new PrismaBetterSqlite3({
+  url: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({ adapter });
+
+async function main() {
+  // HOUSES
+  await prisma.house.createMany({
+    data: [
+      { id: "KGH01", name: "Mubaraza", code: "A", color: "Blue" },
+      { id: "KGH02", name: "Muqawama", code: "B", color: "Red" },
+      { id: "KGH03", name: "Mukafaha", code: "C", color: "Green" },
+    ],
+   
+  });
+
+  // CATEGORIES
+  await prisma.category.createMany({
+    data: [
+      { id: "KGCAT01", code: "SJR", name: "Sub Junior" },
+      { id: "KGCAT02", code: "JR", name: "Junior" },
+      { id: "KGCAT03", code: "SR", name: "Senior" },
+      { id: "KGCAT04", code: "SSR", name: "Super Senior" },
+      { id: "KGCAT05", code: "GN", name: "General" },
+    ],
+   
+  });
+
+  // CATEGORY ELIGIBILITY
+  await prisma.categoryEligibility.createMany({
+    data: [
+      { id: "EL001", categoryId: "KGCAT01", faculty: "Hifz", className: "2" },
+      { id: "EL002", categoryId: "KGCAT01", faculty: "Hifz", className: "3" },
+      { id: "EL003", categoryId: "KGCAT01", faculty: "Hifz", className: "4" },
+      { id: "EL004", categoryId: "KGCAT01", faculty: "Hifz", className: "5" },
+      { id: "EL005", categoryId: "KGCAT02", faculty: "Hifz", className: "6" },
+      { id: "EL006", categoryId: "KGCAT02", faculty: "Hifz", className: "7" },
+      { id: "EL007", categoryId: "KGCAT02", faculty: "Hifz", className: "8" },
+      { id: "EL008", categoryId: "KGCAT03", faculty: "Kulliya", className: "8" },
+      { id: "EL009", categoryId: "KGCAT03", faculty: "Kulliya", className: "9" },
+      { id: "EL010", categoryId: "KGCAT03", faculty: "Kulliya", className: "10" },
+      { id: "EL011", categoryId: "KGCAT04", faculty: "Kulliya", className: "1" },
+      { id: "EL012", categoryId: "KGCAT04", faculty: "Kulliya", className: "2" },
+      { id: "EL013", categoryId: "KGCAT05", faculty: "All", className: "All" },
+    ],
+    
+  });
+
+  // POINT RULES
+  const rules = [
+    ["PR001", "SJR", "INDIVIDUAL", 1, 10],
+    ["PR002", "SJR", "INDIVIDUAL", 2, 5],
+    ["PR003", "SJR", "INDIVIDUAL", 3, 3],
+    ["PR004", "JR", "INDIVIDUAL", 1, 10],
+    ["PR005", "JR", "INDIVIDUAL", 2, 5],
+    ["PR006", "JR", "INDIVIDUAL", 3, 3],
+    ["PR007", "SR", "INDIVIDUAL", 1, 10],
+    ["PR008", "SR", "INDIVIDUAL", 2, 5],
+    ["PR009", "SR", "INDIVIDUAL", 3, 3],
+    ["PR010", "SSR", "INDIVIDUAL", 1, 10],
+    ["PR011", "SSR", "INDIVIDUAL", 2, 5],
+    ["PR012", "SSR", "INDIVIDUAL", 3, 3],
+    ["PR013", "GN", "INDIVIDUAL", 1, 15],
+    ["PR014", "GN", "INDIVIDUAL", 2, 10],
+    ["PR015", "GN", "INDIVIDUAL", 3, 5],
+    ["PR016", "SJR", "GROUP", 1, 15],
+    ["PR017", "SJR", "GROUP", 2, 10],
+    ["PR018", "SJR", "GROUP", 3, 5],
+    ["PR019", "JR", "GROUP", 1, 15],
+    ["PR020", "JR", "GROUP", 2, 10],
+    ["PR021", "JR", "GROUP", 3, 5],
+    ["PR022", "SR", "GROUP", 1, 15],
+    ["PR023", "SR", "GROUP", 2, 10],
+    ["PR024", "SR", "GROUP", 3, 5],
+    ["PR025", "SSR", "GROUP", 1, 15],
+    ["PR026", "SSR", "GROUP", 2, 10],
+    ["PR027", "SSR", "GROUP", 3, 5],
+    ["PR028", "GN", "GROUP", 1, 15],
+    ["PR029", "GN", "GROUP", 2, 10],
+    ["PR030", "GN", "GROUP", 3, 5],
+  ];
+
+  await prisma.pointRule.createMany({
+    data: rules.map(([id, categoryCode, competitionType, rank, points]) => ({
+      id: id as string,
+      categoryCode: categoryCode as string,
+      competitionType: competitionType as string,
+      rank: rank as number,
+      points: points as number,
+    })),
+    
+  });
+
+  // JUDGES
+  await prisma.judge.createMany({
+    data: [
+      {
+        id: "KGJ001",
+        code: "J01",
+        name: "ashif",
+        username: "ashif",
+        passwordHash: "#0001",
+        phone: "9876543321",
+      },
+      {
+        id: "KGJ002",
+        code: "J02",
+        name: "nishmal",
+        username: "nishmal",
+        passwordHash: "#0002",
+        phone: "9876543321",
+      },
+      {
+        id: "KGJ003",
+        code: "J03",
+        name: "adil.t.t",
+        username: "adil.t.t",
+        passwordHash: "#0003",
+        phone: "9876543321",
+      },
+    ],
+    
+  });
+
+  // ADMIN
+  await prisma.admin.upsert({
+    where: { id: "AD001" },
+    update: {},
+    create: {
+      id: "AD001",
+      name: "Administrator",
+      username: "admin",
+      passwordHash: "CHANGE_ME",
+      status: "ACTIVE",
+    },
+  });
+
+  // DISPLAY CONFIG
+  await prisma.displayConfig.createMany({
+    data: [
+      {
+        id: "DC001",
+        displayOrder: 1,
+        displayName: "Overall",
+        category: "OVERALL",
+        durationSeconds: 30,
+      },
+      {
+        id: "DC002",
+        displayOrder: 2,
+        displayName: "Super Senior",
+        category: "SSR",
+        durationSeconds: 30,
+      },
+      {
+        id: "DC003",
+        displayOrder: 3,
+        displayName: "Senior",
+        category: "SR",
+        durationSeconds: 30,
+      },
+      {
+        id: "DC004",
+        displayOrder: 4,
+        displayName: "Junior",
+        category: "JR",
+        durationSeconds: 30,
+      },
+      {
+        id: "DC005",
+        displayOrder: 5,
+        displayName: "Sub Junior",
+        category: "SJR",
+        durationSeconds: 30,
+      },
+      {
+        id: "DC006",
+        displayOrder: 6,
+        displayName: "General",
+        category: "GN",
+        durationSeconds: 30,
+      },
+    ],
+ 
+  });
+
+  // PROGRAMS
+  await prisma.program.createMany({
+    data: [
+      { id: "KGP001", code: "SJR001", name: "ചിത്ര രചന", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP002", code: "SJR002", name: "ഗദ്യ വായന", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP003", code: "SJR003", name: "മെമ്മറി ടെസ്റ്റ്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP004", code: "SJR004", name: "കയ്യെഴുത്ത് [മല]", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP005", code: "SJR005", name: "കത്തെഴുത്ത്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP006", code: "SJR006", name: "ഇക്തിശാഫ്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP007", code: "SJR007", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP008", code: "SJR008", name: "ഹിഫ്ള്", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP009", code: "SJR009", name: "മദ്ഹ് ഗാനം", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP010", code: "SJR010", name: "കഥ പറച്ചിൽ [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP011", code: "SJR011", name: "പ്രസംഗം [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP012", code: "SJR012", name: "സംഭാഷണം [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP013", code: "JR013", name: "കയ്യെഴുത്ത് [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP014", code: "JR014", name: "കയ്യെഴുത്ത് [ARA]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP015", code: "JR015", name: "ചിത്ര രചന", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP016", code: "JR016", name: "കഥാ രചന [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP017", code: "JR017", name: "ക്വിസ്", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP018", code: "JR018", name: "ഗദ്യ വായന [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP019", code: "JR019", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP020", code: "JR020", name: "ഹിഫ്ള്", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP021", code: "JR021", name: "വാങ്ക്", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP022", code: "JR022", name: "പ്രസംഗം [മല]", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP023", code: "JR023", name: "ഗാനം [ARA]", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP024", code: "JR024", name: "മദ്ഹ് ഗാനം", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP025", code: "JR025", name: "വുസൂലുസ്സുവർ", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP026", code: "SR026", name: "കയ്യെഴുത്ത് [മല]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP027", code: "SR027", name: "കയ്യെഴുത്ത് [ENG]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP028", code: "SR028", name: "കയ്യെഴുത്ത് [ARA]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP029", code: "SR029", name: "കയ്യെഴുത്ത് [URD]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP030", code: "SR030", name: "മെമ്മറി ടെസ്റ്റ്", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP031", code: "SR031", name: "പദപ്പയറ്റ് [ARA]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP032", code: "SR032", name: "പദപ്പയറ്റ് [ENG]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP033", code: "SR033", name: "ഗദ്യ വായന [ENG]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP034", code: "SR034", name: "ഗദ്യ വായന [URD]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP035", code: "SR035", name: "സ്പെല്ലിങ് ബീ", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP036", code: "SR036", name: "ഖുർആൻ ക്വിസ്", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP037", code: "SR037", name: "ട്രാൻസ്ലേഷൻ [ARA-ENG]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP038", code: "SR038", name: "ടൈപ്പിംഗ് [ENG]", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP039", code: "SR039", name: "തസ്‌രീഫ്", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP040", code: "SR040", name: "പെൻസിൽ ഡ്രോയിങ്", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP041", code: "SR041", name: "ഗണിത പ്രതിഭ", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP042", code: "SR042", name: "ചിത്രപൊരുൾ", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP043", code: "SR043", name: "വാട്ടർ പെയിന്റിംഗ്", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP044", code: "SR044", name: "പദപ്രതിഭ", categoryId: "KGCAT03", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP045", code: "SR045", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP046", code: "SR046", name: "ഹിഫ്ള്", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP047", code: "SR047", name: "പ്രസംഗം [മല]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP048", code: "SR048", name: "പ്രസംഗം [URD]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP049", code: "SR049", name: "ഗാനം [മല]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP050", code: "SR050", name: "ഗാനം [ARA]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP051", code: "SR051", name: "ഗാനം [URD]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP052", code: "SR052", name: "കഥപറയൽ [മല]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP053", code: "SR053", name: "കഥപറയൽ [ENG]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP054", code: "SR054", name: "കഥപറയൽ [ARA]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP055", code: "SR055", name: "മധുരം മലയാളം", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP056", code: "SR056", name: "സംഭാഷണം [ENG]", categoryId: "KGCAT03", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP057", code: "SSR057", name: "പ്രബന്ധം [മല]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP058", code: "SSR058", name: "പ്രബന്ധം [ENG]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP059", code: "SSR059", name: "പ്രബന്ധം [ARA]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP060", code: "SSR060", name: "പ്രബന്ധം [URD]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP061", code: "SSR061", name: "കവിതാ രചന", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP062", code: "SSR062", name: "ഗ്രന്ഥ വായന", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP063", code: "SSR063", name: "ന്യൂസ് മേക്കിങ് [ENG]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP064", code: "SSR064", name: "വേർഡ് ഹണ്ടിങ് [ENG]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP065", code: "SSR065", name: "വിവർത്തനം [ENG-ARA]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP066", code: "SSR066", name: "വിവർത്തനം [മല-URD]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP067", code: "SSR067", name: "ക്യാപ്ഷൻ മേക്കിങ്", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP068", code: "SSR068", name: "വീഡിയോ ഗ്രാസ്‌പിങ്   [ARA]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP069", code: "SSR069", name: "ബ്രെയിൻ മാട്രിക്സ്", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP070", code: "SSR070", name: "AI പോസ്റ്റർ മേക്കിങ്", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP071", code: "SSR071", name: "ടൈപ്പിംഗ് [ENG]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP072", code: "SSR072", name: "ക്വിസ്", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP073", code: "SSR073", name: "തസ്‌രീഫ്", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP074", code: "SSR074", name: "കാലിഗ്രാഫി [ARA]", categoryId: "KGCAT04", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP075", code: "SSR075", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP076", code: "SSR076", name: "ഹിഫ്ള്", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP077", code: "SSR077", name: "പ്രസംഗം [ARA]", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP078", code: "SSR078", name: "പ്രസംഗം [URD]", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP079", code: "SSR079", name: "നിമിഷ പ്രസംഗം", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP080", code: "SSR080", name: "പിക്ക് & ടോക്ക്", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP081", code: "SSR081", name: "ഗാനം [ARA]", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP082", code: "SSR082", name: "ഗാനം [URD]", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP083", code: "SSR083", name: "മാപ്പിളപ്പാട്ട്", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP084", code: "SSR084", name: "ലൈവ് ട്രാൻസ്ലേഷൻ   [ENG-മല]", categoryId: "KGCAT04", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP085", code: "GN085", name: "പത്ര നിർമ്മാണം [മല]", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP086", code: "GN086", name: "പത്ര നിർമ്മാണം [ENG]", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP087", code: "GN087", name: "പത്ര നിർമ്മാണം [ARA]", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP088", code: "GN088", name: "പത്ര നിർമ്മാണം [URD]", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP089", code: "GN089", name: "പോഡ്കാസ്റ്റ്", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP090", code: "GN090", name: "തീം ബ്രാൻഡിംഗ്   ഡോക്യുമെന്ററി", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP091", code: "GN091", name: "കൊളാഷ്", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP092", code: "GN092", name: "പ്രോംപ്റ്റ് ഡിസൈനിങ്   [ENG]", categoryId: "KGCAT05", stageType: "NON-STAGE", competitionType: "INVIDUAL", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP093", code: "GN093", name: "ബുർദ & ഖവ്വാലി", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP094", code: "GN094", name: "സംഘ ഗാനം [ARA]", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP095", code: "GN095", name: "കഥാ പ്രസംഗം", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP096", code: "GN096", name: "മാലപ്പാട്ട്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP097", code: "GN097", name: "മാഷപ്പ്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP098", code: "GN098", name: "ലൈവ് റിപ്പോർട്ടിങ്   [ENG]", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP099", code: "GN099", name: "വഅ്ള്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP100", code: "GN100", name: "ഖുതുബ", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP101", code: "GN101", name: "മുഹാളറ", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP102", code: "GN102", name: "മുശാറഅ", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP103", code: "GN103", name: "മുഖാറഅ", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "INVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+      { id: "KGP104", code: "GN104", name: "ഡിബേറ്റ്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP105", code: "GN105", name: "ഖുർആൻ വിസ്മയ വിരുന്ന്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+      { id: "KGP106", code: "GN106", name: "ഇലൽ ഹബീബ്", categoryId: "KGCAT05", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+    ],
+  });
+
+// PARTICIPANTS
+and put the Programs seed before it:
+
+// PROGRAMS
+await prisma.program.createMany({
+  data: [
+    // 106 program records here
+  ],
+});
+Then run:
+
+npx tsx prisma/seed.ts
+But because your database already contains the 59 participants, don't run the current non-idempotent seed yet. We should add the 106 programs safely first.
+
+
+Yes. If you mean where exactly to place model Program, put it immediately before:
+
+model Participant {
+So your order should be:
+
+model CategoryEligibility {
+  ...
+}
+
+model Program {
+  id              String   @id
+  code            String   @unique
+  name            String
+  categoryId      String
+  stageType       String
+  competitionType String
+  chancesPerHouse Int
+  maxParticipants String
+  maxMark         Int      @default(100)
+  status          String   @default("NOT_STARTED")
+
+  category        Category @relation(fields: [categoryId], references: [id])
+  entries         ProgramEntry[]
+  assignments     JudgeAssignment[]
+  results         Result[]
+}
+
+model Participant {
+Yes — exactly before model Participant.
+
+
+9c21de05-0048-419c-8470-34d040e90ae3.png
+
+Click Overwrite. ✅
+
+That means Cursor has a newer version of schema.prisma on disk, and you want your current changes to replace it.
+
+After that, continue.
+
+
+continue
+
+Next — important: the screenshot shows the 106 program records are currently inside schema.prisma. ❌
+
+1. In schema.prisma
+Keep only the model Program { ... } block before model Participant.
+
+Do NOT put the 106 { id: "KGP001"... } records there.
+
+2. Put the 106 records in:
+prisma/seed.ts
+Find:
+
+// PARTICIPANTS
+and place the Programs seed immediately before it:
+
+// PROGRAMS
+await prisma.program.createMany({
+  data: [
+    // paste KGP001–KGP106 here
+  ],
+});
+3. Save both files.
+Then run:
+
+npx prisma format
+Then:
+
+npx prisma validate
+Stop there and send me the result.
+
+
+Library
+/
+PROGRAMS_seed_106.txt
+
+
+
+await prisma.program.createMany({
+  data: [
+    { id: "KGP001", code: "SJR001", name: "ചിത്ര രചന", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP002", code: "SJR002", name: "ഗദ്യ വായന", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP003", code: "SJR003", name: "മെമ്മറി ടെസ്റ്റ്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP004", code: "SJR004", name: "കയ്യെഴുത്ത് [മല]", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP005", code: "SJR005", name: "കത്തെഴുത്ത്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP006", code: "SJR006", name: "ഇക്തിശാഫ്", categoryId: "KGCAT01", stageType: "NON-STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+    { id: "KGP007", code: "SJR007", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP008", code: "SJR008", name: "ഹിഫ്ള്", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP009", code: "SJR009", name: "മദ്ഹ് ഗാനം", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP010", code: "SJR010", name: "കഥ പറച്ചിൽ [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP011", code: "SJR011", name: "പ്രസംഗം [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP012", code: "SJR012", name: "സംഭാഷണം [മല]", categoryId: "KGCAT01", stageType: "STAGE", competitionType: "GROUP", chancesPerHouse: 1, maxParticipants: "3", maxMark: 100, status: "not_started" },
+    { id: "KGP013", code: "JR013", name: "കയ്യെഴുത്ത് [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP014", code: "JR014", name: "കയ്യെഴുത്ത് [ARA]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP015", code: "JR015", name: "ചിത്ര രചന", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP016", code: "JR016", name: "കഥാ രചന [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP017", code: "JR017", name: "ക്വിസ്", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP018", code: "JR018", name: "ഗദ്യ വായന [മല]", categoryId: "KGCAT02", stageType: "NON-STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP019", code: "JR019", name: "ഖിറാ'അത്ത്", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+    { id: "KGP020", code: "JR020", name: "ഹിഫ്ള്", categoryId: "KGCAT02", stageType: "STAGE", competitionType: "INDIVIDUAL", chancesPerHouse: 2, maxParticipants: "6", maxMark: 100, status: "not_started" },
+
+  // PARTICIPANTS
+  await prisma.participant.createMany({
+    data: [
+      { id: "KGPART101", chestNo: 101, name: "Muhammed Dani", role: "LEADER", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH01" },
+      { id: "KGPART102", chestNo: 102, name: "Hanan Aslam", role: "ASSISTANT_LEADER", faculty: "Kulliya", categoryId: "KGCAT02", houseId: "KGH01" },
+      { id: "KGPART103", chestNo: 103, name: "Arshan J", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH01" },
+      { id: "KGPART104", chestNo: 104, name: "Muhammed Shamil K.T", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH01" },
+      { id: "KGPART105", chestNo: 105, name: "Farhan M", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH01" },
+      { id: "KGPART111", chestNo: 111, name: "Ahmed Aakhil", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART112", chestNo: 112, name: "Shamil Anshad", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART113", chestNo: 113, name: "Sayyid Rayyan Jifri", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART114", chestNo: 114, name: "Muhammed Adnan", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART115", chestNo: 115, name: "Rabeeh Ali", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART116", chestNo: 116, name: "Muhammed Fayiz", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH01" },
+      { id: "KGPART121", chestNo: 121, name: "Muhammed Majid", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH01" },
+      { id: "KGPART122", chestNo: 122, name: "Muhammed Shammas", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH01" },
+      { id: "KGPART123", chestNo: 123, name: "Muahmmed Aathif", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH01" },
+      { id: "KGPART131", chestNo: 131, name: "Muhammed Aflah", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH01" },
+      { id: "KGPART132", chestNo: 132, name: "Muhammed Shan", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH01" },
+      { id: "KGPART133", chestNo: 133, name: "Muhammed Swalih T.K", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH01" },
+      { id: "KGPART134", chestNo: 134, name: "Amjad Ali", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH01" },
+      { id: "KGPART135", chestNo: 135, name: "Muhammed Swalih M", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH01" },
+
+      { id: "KGPART201", chestNo: 201, name: "Muhammed Anshif M", role: "LEADER", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH02" },
+      { id: "KGPART202", chestNo: 202, name: "Ajfal Hadi", role: "ASSISTANT_LEADER", faculty: "Kulliya", categoryId: "KGCAT02", houseId: "KGH02" },
+      { id: "KGPART203", chestNo: 203, name: "Abdul Basith", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH02" },
+      { id: "KGPART204", chestNo: 204, name: "Muhammed Nahyeem", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH02" },
+      { id: "KGPART205", chestNo: 205, name: "Nishmal Sinan", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH02" },
+      { id: "KGPART211", chestNo: 211, name: "Muhammed Mahir", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART212", chestNo: 212, name: "Muhammed Uvais", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART213", chestNo: 213, name: "Muhammed Ameen", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART214", chestNo: 214, name: "Muhammed Swalih A", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART215", chestNo: 215, name: "Muhammed Najih", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART216", chestNo: 216, name: "Muhammed Dhakir", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH02" },
+      { id: "KGPART217", chestNo: 217, name: "Muhammed Ashal", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH02" },
+      { id: "KGPART221", chestNo: 221, name: "Muhammed Shajah", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH02" },
+      { id: "KGPART222", chestNo: 222, name: "Muhammed Malik", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH02" },
+      { id: "KGPART223", chestNo: 223, name: "Muhammed Ajsal", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH02" },
+      { id: "KGPART231", chestNo: 231, name: "Muhammed Minhal", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH02" },
+      { id: "KGPART232", chestNo: 232, name: "Muhammed Rihan", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH02" },
+      { id: "KGPART233", chestNo: 233, name: "Muhammed Irfan", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH02" },
+      { id: "KGPART234", chestNo: 234, name: "Muhammed Fidhán", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH02" },
+      { id: "KGPART235", chestNo: 235, name: "Muhammed Razi A", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH02" },
+
+      { id: "KGPART301", chestNo: 301, name: "Abdulla Anzil", role: "LEADER", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH03" },
+      { id: "KGPART302", chestNo: 302, name: "Muhammed Ajnas", role: "ASSISTANT_LEADER", faculty: "Kulliya", categoryId: "KGCAT02", houseId: "KGH03" },
+      { id: "KGPART303", chestNo: 303, name: "Muhammed Nihal", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH03" },
+      { id: "KGPART304", chestNo: 304, name: "Muhammed Ansif", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH03" },
+      { id: "KGPART305", chestNo: 305, name: "Muhammed Swalih K", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT04", houseId: "KGH03" },
+      { id: "KGPART311", chestNo: 311, name: "Muhammed Shujah", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART312", chestNo: 312, name: "Muhammed Anees", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART313", chestNo: 313, name: "Abdul Hadi", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART314", chestNo: 314, name: "Muhammed Adil", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART315", chestNo: 315, name: "Muhammed Ashiq", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART316", chestNo: 316, name: "Muhammed Sinan", role: "PARTICIPANT", faculty: "Kulliya", categoryId: "KGCAT03", houseId: "KGH03" },
+      { id: "KGPART321", chestNo: 321, name: "Munavvar Ali", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH03" },
+      { id: "KGPART322", chestNo: 322, name: "Munavvar", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH03" },
+      { id: "KGPART323", chestNo: 323, name: "Muhammed Saneen", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH03" },
+      { id: "KGPART324", chestNo: 324, name: "Shibin Shahil", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT02", houseId: "KGH03" },
+      { id: "KGPART331", chestNo: 331, name: "Muhammed Rashid", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH03" },
+      { id: "KGPART332", chestNo: 332, name: "Muhammed Zayan", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH03" },
+      { id: "KGPART333", chestNo: 333, name: "Muhammed Razi P", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH03" },
+      { id: "KGPART334", chestNo: 334, name: "Muhammed Hadi", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH03" },
+      { id: "KGPART335", chestNo: 335, name: "Muhammed Ayman", role: "PARTICIPANT", faculty: "Hifz", categoryId: "KGCAT01", houseId: "KGH03" },
+    ],
+  });
+
+  console.log("59 participants seeded successfully.");
+  console.log("KALARGE base data seeded successfully.");
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

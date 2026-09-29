@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model House {
+  id     String @id
+  name   String
+  code   String @unique
+  color  String
+  status String @default("ACTIVE")
+
+  participants Participant[]
+  entries      ProgramEntry[]
+  results      Result[]
+  judgeMarks JudgeMark[]
+}
+
+model Category {
+  id     String @id
+  code   String @unique
+  name   String
+  status String @default("ACTIVE")
+
+  programs      Program[]
+  eligibilities CategoryEligibility[]
+  participants  Participant[]
+}
+
+model CategoryEligibility {
+  id         String @id
+  categoryId String
+  faculty    String
+  className  String
+  status     String @default("ACTIVE")
+
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Participant {
+  id         String @id
+  chestNo    Int    @unique
+  name       String
+  role       String
+  faculty    String
+  categoryId String
+  houseId    String
+  status     String @default("ACTIVE")
+
+  category Category       @relation(fields: [categoryId], references: [id])
+  house    House          @relation(fields: [houseId], references: [id])
+  entries  ProgramEntry[]
+  results  Result[]
+  judgeMarks JudgeMark[]
+}
+
+model Program {
+  id              String @id
+  code            String @unique
+  name            String
+  categoryId      String
+  stageType       String
+  competitionType String
+  chancesPerHouse Int
+  maxParticipants String
+  maxMark         Int    @default(100)
+  status          String @default("NOT_STARTED")
+
+  category    Category          @relation(fields: [categoryId], references: [id])
+  entries     ProgramEntry[]
+  assignments JudgeAssignment[]
+  results     Result[]
+  judgeMarks JudgeMark[]
+}
+
+model Judge {
+  id           String  @id
+  code         String  @unique
+  name         String
+  username     String  @unique
+  passwordHash String
+  phone        String?
+  status       String  @default("ACTIVE")
+
+   assignments JudgeAssignment[]
+  sessions    JudgeSession[]
+  marks       JudgeMark[]
+}
+
+model JudgeAssignment {
+  id           String    @id
+  judgeId      String
+  programId    String
+  assignedDate DateTime?
+  status       String    @default("ASSIGNED")
+
+  judge   Judge   @relation(fields: [judgeId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+
+  @@unique([judgeId, programId])
+}
+
+model ProgramEntry {
+  id            String @id
+  programId     String
+  participantId String
+  chestNo       Int
+  houseId       String
+  entryType     String
+  status        String @default("ACTIVE")
+
+  program     Program     @relation(fields: [programId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id])
+  house       House       @relation(fields: [houseId], references: [id])
+  result      Result?
+  judgeMarks JudgeMark[]
+}
+
+model PointRule {
+  id              String @id
+  categoryCode    String
+  competitionType String
+  rank            Int
+  points          Int
+  status          String @default("ACTIVE")
+}
+
+model Result {
+  id            String    @id
+  programId     String
+  entryId       String    @unique
+  participantId String
+  houseId       String
+  totalMark     Int
+  rank          Int
+  points        Int       @default(0)
+  status        String    @default("PENDING")
+  submittedAt   DateTime?
+  approvedAt    DateTime?
+  approvedBy    String?
+
+  program     Program      @relation(fields: [programId], references: [id])
+  entry       ProgramEntry @relation(fields: [entryId], references: [id])
+  participant Participant  @relation(fields: [participantId], references: [id])
+  house       House        @relation(fields: [houseId], references: [id])
+}
+
+model DisplayConfig {
+  id              String @id
+  displayOrder    Int
+  displayName     String
+  category        String
+  durationSeconds Int
+  status          String @default("ACTIVE")
+}
+model Admin {
+  id           String @id
+  name         String
+  username     String @unique
+  passwordHash String
+  status       String @default("ACTIVE")
+
+  sessions AdminSession[]
+}
+
+model AdminSession {
+  id        String   @id
+  adminId   String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+}
+model JudgeMark {
+  id String @id
+  judgeId String
+  programId String
+  entryId String
+  participantId String
+  houseId String
+  totalMark Int
+  judgementDetails String?
+  submittedAt DateTime?
+  status String @default("DRAFT")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  judge Judge @relation(fields: [judgeId], references: [id])
+  program Program @relation(fields: [programId], references: [id])
+  entry ProgramEntry @relation(fields: [entryId], references: [id])
+  participant Participant @relation(fields: [participantId], references: [id])
+  house House @relation(fields: [houseId], references: [id])
+
+  @@unique([judgeId, entryId])
+  @@index([programId])
+  @@index([judgeId])
+}
+model JudgeSession {
+  id        String   @id
+  judgeId   String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  judge Judge @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+
+  @@index([judgeId])
+  @@index([expiresAt])
+}
+model DisplayEvent {
+  id        String   @id @default(cuid())
+  type      String
+  payload   String?
+  createdAt DateTime @default(now())
+}
